@@ -1,0 +1,32 @@
+.dropdown-content {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    border-radius: 0.5rem;
+    max-height: 32vh;
+    overflow-y: scroll;
+    scrollbar-width:none;
+    --ms-overflow-style: none;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform: scaleY(0); 
+    transform-origin: top; 
+    opacity: 0;
+    z-index: 999;
+}
+
+.dropdown-content::-webkit-scrollbar {
+    height: 0;
+    width: 0;
+}
+
+.dropdown-content.content-open {
+    transform: scaleY(1); 
+    opacity: 1;
+}
+
+.button-open {
+    border: 1px solid #345494;
+}

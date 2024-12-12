@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+  --color-background: #1C1C1C;  /* Deep Charcoal */
+  --color-container: #2A2A2A;   /* Slightly Lighter Charcoal */
+  --color-primary: #E0E0E0;        /* Light Gray */
+  --color-secondary: #A0A0A0;       /* Muted Gray */
+  --color-divider: #3C3C3C;     /* Dark Slate Gray */
+  --color-highlight: #B0B0B0;   /* Dimmed Pastel White */
+}
