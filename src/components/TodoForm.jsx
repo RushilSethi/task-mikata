@@ -4,7 +4,7 @@ import Dropdown from "./Dropdown/Dropdown";
 import DropdownItem from "./Dropdown/DropdownItem";
 import { useState } from "react";
 
-const TodoForm = ({ showModal, setShowModal }) => {
+const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
   const categories = [
     { id: 1, text: "Home", color: "text-sky-400" },
     { id: 2, text: "Work", color: "text-lime-400" },
@@ -14,11 +14,41 @@ const TodoForm = ({ showModal, setShowModal }) => {
     { id: 6, text: "Other", color: "text-purple-400" },
   ];
 
+  const [title, setTitle] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [category, setCategory] = useState("");
   const [selectedPriority, setSelectedPriority] = useState("");
+  const [description, setDescription] = useState("");
 
   const handlePriorityChange = (e) => {
     setSelectedPriority(e.target.value);
   };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const todoData = {
+      id: Date.now(),
+      title,
+      deadline,
+      category,
+      priority: selectedPriority,
+      description,
+    };
+
+    console.log("Todo Data Submitted:", todoData);
+
+    setTitle("");
+    setDeadline("");
+    setCategory("");
+    setSelectedPriority("");
+    setDescription("");
+
+    setShowModal(false);
+
+    // add local storage write for saving data
+  };
+
   return (
     <>
       {showModal && (
@@ -33,7 +63,7 @@ const TodoForm = ({ showModal, setShowModal }) => {
             <h2 className="text-primary text-xl font-semibold mb-4">
               Create a New To-Do
             </h2>
-            <form className="flex flex-col space-y-4">
+            <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-sm font-medium text-primary mb-1">
                   Title
@@ -42,6 +72,9 @@ const TodoForm = ({ showModal, setShowModal }) => {
                   type="text"
                   placeholder="Enter title"
                   className="w-full px-2 py-1 bg-background rounded-md focus:outline-none focus:ring-1"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
                 />
               </div>
               <div>
@@ -52,7 +85,10 @@ const TodoForm = ({ showModal, setShowModal }) => {
                   type="datetime-local"
                   placeholder="Enter title"
                   className="w-full px-2 py-1 bg-background rounded-md appearance-none focus:outline-none focus:ring-1"
-                  style={{ "color-scheme": "dark" }}
+                  style={{ colorScheme: "dark" }}
+                  value={deadline}
+                  onChange={(e) => setDeadline(e.target.value)}
+                  required
                 />
               </div>
               <div className="md:flex items-center">
@@ -61,11 +97,11 @@ const TodoForm = ({ showModal, setShowModal }) => {
                     Category
                   </label>
                   <Dropdown
-                    buttonText="Select a category"
+                    buttonText = {category === "" ? "Select a category" : category}
                     content={
                       <>
                         {categories.map((item) => (
-                          <DropdownItem key={item.id} textColor={item.color}>
+                          <DropdownItem key={item.id} textColor={item.color} onClick={() => setCategory(item.text)}>
                             {item.text}
                           </DropdownItem>
                         ))}
@@ -85,7 +121,7 @@ const TodoForm = ({ showModal, setShowModal }) => {
                         name="priority"
                         className="mr-2"
                         checked={selectedPriority === "High"}
-                        onChange={handleChange}
+                        onChange={handlePriorityChange}
                       />
                       <span className="text-rose-500">High</span>
                     </label>
@@ -96,7 +132,7 @@ const TodoForm = ({ showModal, setShowModal }) => {
                         name="priority"
                         className="mr-2"
                         checked={selectedPriority === "Moderate"}
-                        onChange={handleChange}
+                        onChange={handlePriorityChange}
                       />
                       <span className="text-amber-400">Moderate</span>
                     </label>
@@ -107,7 +143,7 @@ const TodoForm = ({ showModal, setShowModal }) => {
                         name="priority"
                         className="mr-2"
                         checked={selectedPriority === "Low"}
-                        onChange={handleChange}
+                        onChange={handlePriorityChange}
                       />
                       <span className="text-emerald-400">Low</span>
                     </label>
@@ -122,6 +158,9 @@ const TodoForm = ({ showModal, setShowModal }) => {
                   placeholder="Enter description"
                   className="w-full px-2 py-1 bg-background rounded-md focus:outline-none focus:ring-1"
                   rows="3"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  required
                 />
               </div>
               <div className="flex justify-end space-x-4">
@@ -150,6 +189,15 @@ const TodoForm = ({ showModal, setShowModal }) => {
 TodoForm.propTypes = {
   showModal: PropTypes.bool.isRequired,
   setShowModal: PropTypes.func.isRequired,
+  tasks: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    deadline: PropTypes.any.isRequired,
+    category: PropTypes.string.isRequired,
+    priority: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired
+  })),
+  updateTasks: PropTypes.func.isRequired
 };
 
 export default TodoForm;
