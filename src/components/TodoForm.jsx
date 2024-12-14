@@ -3,15 +3,19 @@ import closeIcon from "../assets/close-icon.svg";
 import Dropdown from "./Dropdown/Dropdown";
 import DropdownItem from "./Dropdown/DropdownItem";
 import { useState } from "react";
+import {
+  getTasksFromLocalStorage,
+  saveTasksToLocalStorage,
+} from "../helpers/handle_local_storage";
 
 const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
   const categories = [
-    { id: 1, text: "Home", color: "text-sky-400" },
-    { id: 2, text: "Work", color: "text-lime-400" },
-    { id: 3, text: "Personal", color: "text-pink-400" },
-    { id: 4, text: "Health/Fitness", color: "text-green-400" },
-    { id: 5, text: "Education/Learning", color: "text-yellow-400" },
-    { id: 6, text: "Other", color: "text-purple-400" },
+    { id: 1, text: "Home", emoji: "🏠", color: "text-sky-400" },
+    { id: 2, text: "Work", emoji: "💼", color: "text-lime-400" },
+    { id: 3, text: "Personal", emoji: "🧑‍💼", color: "text-pink-400" },
+    { id: 4, text: "Health/Fitness", emoji: "💪", color: "text-green-400" },
+    { id: 5, text: "Education/Learning", emoji: "📚", color: "text-yellow-400" },
+    { id: 6, text: "Other", emoji: "✨", color: "text-purple-400" },
   ];
 
   const [title, setTitle] = useState("");
@@ -19,6 +23,7 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
   const [category, setCategory] = useState("");
   const [selectedPriority, setSelectedPriority] = useState("");
   const [description, setDescription] = useState("");
+  const [error, setError] = useState("");
 
   const handlePriorityChange = (e) => {
     setSelectedPriority(e.target.value);
@@ -27,6 +32,27 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    setTitle(title.trim());
+    setDescription(description.trim());
+
+    if (!title) {
+      setError("Title is required.");
+      return;
+    }
+    if (!deadline) {
+      setError("Deadline is required.");
+      return;
+    }
+    if (!category) {
+      setError("Please select a category.");
+      return;
+    }
+    if (!selectedPriority) {
+      setError("Please select a priority.");
+      return;
+    }
+    setError("");
+
     const todoData = {
       id: Date.now(),
       title,
@@ -34,6 +60,8 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
       category,
       priority: selectedPriority,
       description,
+      status:
+        deadline && new Date(deadline) > new Date() ? "In Progress" : "Pending",
     };
 
     console.log("Todo Data Submitted:", todoData);
@@ -46,13 +74,15 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
 
     setShowModal(false);
 
-    // add local storage write for saving data
+    let updatedTasks = [todoData, ...tasks];
+
+    updateTasks(updatedTasks);
   };
 
   return (
     <>
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"> 
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-container p-6 rounded-lg shadow-lg w-[90vw] md:w-[50vw] max-h-[90vh] overflow-y-auto overscroll-contain relative">
             <div
               className="absolute top-4 right-4 rounded-full p-3 hover:bg-background"
@@ -70,6 +100,7 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
                 </label>
                 <input
                   type="text"
+                  name="title"
                   placeholder="Enter title"
                   className="w-full px-2 py-1 bg-background rounded-md focus:outline-none focus:ring-1"
                   value={title}
@@ -92,16 +123,29 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
                 />
               </div>
               <div className="md:flex items-center">
-                <div className="w-[100%] md:w-[50%] mb-3 md:mb-0" /* dropdown container */>
+                <div
+                  className="w-[100%] md:w-[50%] mb-3 md:mb-0" /* dropdown container */
+                >
                   <label className="block text-sm font-medium text-primary mb-1">
                     Category
                   </label>
                   <Dropdown
-                    buttonText = {category === "" ? "Select a category" : category}
+                    buttonText={
+                      category === ""
+                        ? "Select a category"
+                        : `${category} ${
+                            categories.find((item) => item.text === category)
+                              ?.emoji || ""
+                          }`
+                    }
                     content={
                       <>
                         {categories.map((item) => (
-                          <DropdownItem key={item.id} textColor={item.color} onClick={() => setCategory(item.text)}>
+                          <DropdownItem
+                            key={item.id}
+                            textColor={item.color}
+                            onClick={() => setCategory(item.text)}
+                          >
                             {item.text}
                           </DropdownItem>
                         ))}
@@ -156,6 +200,7 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
                 </label>
                 <textarea
                   placeholder="Enter description"
+                  name="description"
                   className="w-full px-2 py-1 bg-background rounded-md focus:outline-none focus:ring-1"
                   rows="3"
                   value={description}
@@ -163,11 +208,21 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
                   required
                 />
               </div>
+              {error && (
+                <div className="text-red-500 text-sm font-medium">{error}</div>
+              )}
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   className="border-2 border-red-500 text-red-500 px-4 py-2 rounded-md hover:bg-red-500 hover:text-background transition-all duration-300"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => {
+                    setShowModal(false);
+                    setTitle("");
+                    setDeadline("");
+                    setCategory("");
+                    setSelectedPriority("");
+                    setDescription("");
+                  }}
                 >
                   Cancel
                 </button>
@@ -189,15 +244,18 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
 TodoForm.propTypes = {
   showModal: PropTypes.bool.isRequired,
   setShowModal: PropTypes.func.isRequired,
-  tasks: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    title: PropTypes.string.isRequired,
-    deadline: PropTypes.any.isRequired,
-    category: PropTypes.string.isRequired,
-    priority: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired
-  })),
-  updateTasks: PropTypes.func.isRequired
+  tasks: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      title: PropTypes.string.isRequired,
+      deadline: PropTypes.any.isRequired,
+      category: PropTypes.string.isRequired,
+      priority: PropTypes.string.isRequired,
+      description: PropTypes.string.isRequired,
+      status: PropTypes.string.isRequired,
+    })
+  ),
+  updateTasks: PropTypes.func.isRequired,
 };
 
 export default TodoForm;

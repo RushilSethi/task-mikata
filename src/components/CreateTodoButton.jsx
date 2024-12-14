@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 
 const CreateTodoButton = ({ setShowModal }) => {
   return (
-    <div className="fixed bottom-8 right-8 lg:right-40 lg:bottom-8 bg-primary text-container font-semibold rounded-full px-4 py-3 hover:bg-container hover:text-primary transition-colors duration-300 cursor-pointer" 
+    <div className="fixed bottom-8 right-8 lg:right-40 lg:bottom-8 bg-primary text-container font-semibold rounded-full px-4 py-3 hover:bg-container hover:text-primary hover:border-2 hover:border-primary transition-colors duration-300 cursor-pointer" 
     onClick={() => setShowModal(true)}>
       <button
         className="flex items-center justify-center"
