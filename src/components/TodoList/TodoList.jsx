@@ -1,11 +1,10 @@
-import React from 'react'
 import TodoCard from './TodoCard'
 import PropTypes from 'prop-types'
 
-const TodoList = ({todos}) => {
+const TodoList = ({todos, onComplete, onEdit, onDelete}) => {
   return (
     todos.map((todo)=>(
-        <TodoCard todo={todo} key={todo.id}/>
+        <TodoCard todo={todo} key={todo.id} onComplete={onComplete} onDelete={onDelete} onEdit={onEdit}/>
     ))
   )
 }
@@ -20,6 +19,9 @@ TodoList.propTypes = {
       description: PropTypes.string.isRequired,
       status: PropTypes.string.isRequired
     })),
+    onComplete: PropTypes.func,
+    onEdit: PropTypes.func,
+    onDelete: PropTypes.func,
 };
 
 export default TodoList

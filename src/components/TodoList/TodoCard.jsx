@@ -14,7 +14,7 @@ const truncateText = (text, maxLength) => {
 };
 
 const TodoCard = ({ todo, onComplete, onEdit, onDelete }) => {
-  const { title, description, deadline, category, status, priority } = todo;
+  const { id, title, description, deadline, category, status, priority } = todo;
 
   const [readMore, setReadMore] = useState(false);
 
@@ -126,7 +126,7 @@ const TodoCard = ({ todo, onComplete, onEdit, onDelete }) => {
 
       <div className="flex flex-col justify-around items-center gap-3">
         <button
-          onClick={onComplete}
+          onClick={() => onComplete(id)}
           className="text-green-500 hover:text-green-700"
         >
           {status !== "Done" ? (
@@ -183,7 +183,7 @@ const TodoCard = ({ todo, onComplete, onEdit, onDelete }) => {
             </>
           )}
         </button>
-        <button onClick={onEdit} className="text-blue-500 hover:text-blue-700">
+        <button onClick={() => onEdit(id)} className="text-blue-500 hover:text-blue-700">
           <>
             {" "}
             {/* edit icon */}
@@ -219,7 +219,7 @@ const TodoCard = ({ todo, onComplete, onEdit, onDelete }) => {
             </svg>
           </>
         </button>
-        <button onClick={onDelete} className="text-red-500 hover:text-red-700">
+        <button onClick={() => onDelete(id)} className="text-red-500 hover:text-red-700">
           <>
             {/* trash icon */}
             <svg

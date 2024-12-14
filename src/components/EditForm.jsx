@@ -2,20 +2,25 @@ import PropTypes from "prop-types";
 import closeIcon from "../assets/close-icon.svg";
 import Dropdown from "./Dropdown/Dropdown";
 import DropdownItem from "./Dropdown/DropdownItem";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   getTasksFromLocalStorage,
   saveTasksToLocalStorage,
 } from "../helpers/handle_local_storage";
-import "./Form.css"
+import "./Form.css";
 
-const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
+const EditForm = ({ showEditModal, setShowEditModal, taskToEdit, editTaskHelper }) => {
 
-  if (showModal) {
-    document.body.classList.add("modal-open");
-  } else {
-    document.body.classList.remove("modal-open");
-  }
+    useEffect(() => {
+        if (showEditModal) {
+          document.body.classList.add("modal-open");
+        } else {
+          document.body.classList.remove("modal-open");
+        }
+        return () => {
+          document.body.classList.remove("modal-open");
+        };
+      }, [showEditModal]);
 
   const categories = [
     { id: 1, text: "Home", emoji: "🏠", color: "text-sky-400" },
@@ -29,9 +34,19 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
   const [title, setTitle] = useState("");
   const [deadline, setDeadline] = useState("");
   const [category, setCategory] = useState("");
-  const [selectedPriority, setSelectedPriority] = useState("");
+  const [selectedPriority, setSelectedPriority] = useState("Moderate");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (taskToEdit) {
+      setTitle(taskToEdit.title || "");
+      setDeadline(taskToEdit.deadline || "");
+      setCategory(taskToEdit.category || "");
+      setSelectedPriority(taskToEdit.priority || "Moderate");
+      setDescription(taskToEdit.description || "");
+    }
+  }, [taskToEdit]);
 
   const handlePriorityChange = (e) => {
     setSelectedPriority(e.target.value);
@@ -62,14 +77,13 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
     setError("");
 
     const todoData = {
-      id: Date.now(),
+      id: taskToEdit.id,
       title,
       deadline,
       category,
       priority: selectedPriority,
       description,
-      status:
-        deadline && new Date(deadline) > new Date() ? "In Progress" : "Pending",
+      status: taskToEdit.status,
     };
 
     setTitle("");
@@ -78,26 +92,25 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
     setSelectedPriority("");
     setDescription("");
 
-    setShowModal(false);
+    setShowEditModal(false);
 
-    let updatedTasks = [todoData, ...tasks];
 
-    updateTasks(updatedTasks);
+    editTaskHelper(todoData);
   };
 
   return (
     <>
-      {showModal && (
+      {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-container p-6 rounded-lg shadow-lg w-[90vw] md:w-[50vw] max-h-[90vh] overflow-y-auto overscroll-contain relative">
             <div
               className="absolute top-4 right-4 rounded-full p-3 hover:bg-background"
-              onClick={() => setShowModal(false)}
+              onClick={() => setShowEditModal(false)}
             >
               <img src={closeIcon} className="w-4" />
             </div>
             <h2 className="text-primary text-xl font-semibold mb-4">
-              Create a New To-Do
+              Edit this To-Do
             </h2>
             <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
               <div>
@@ -222,7 +235,7 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
                   type="button"
                   className="border-2 border-red-500 text-red-500 px-4 py-2 rounded-md hover:bg-red-500 hover:text-background transition-all duration-300"
                   onClick={() => {
-                    setShowModal(false);
+                    setShowEditModal(false);
                     setTitle("");
                     setDeadline("");
                     setCategory("");
@@ -236,7 +249,7 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
                   type="submit"
                   className="bg-primary text-container px-4 py-2 rounded-md hover:bg-background hover:text-primary transition-all duration-300"
                 >
-                  Add Todo
+                  Edit Todo
                 </button>
               </div>
             </form>
@@ -247,11 +260,10 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
   );
 };
 
-TodoForm.propTypes = {
-  showModal: PropTypes.bool.isRequired,
-  setShowModal: PropTypes.func.isRequired,
-  tasks: PropTypes.arrayOf(
-    PropTypes.shape({
+EditForm.propTypes = {
+  showEditModal: PropTypes.bool.isRequired,
+  setShowEditModal: PropTypes.func.isRequired,
+  taskToEdit: PropTypes.shape({
       id: PropTypes.number.isRequired,
       title: PropTypes.string.isRequired,
       deadline: PropTypes.any.isRequired,
@@ -259,9 +271,8 @@ TodoForm.propTypes = {
       priority: PropTypes.string.isRequired,
       description: PropTypes.string.isRequired,
       status: PropTypes.string.isRequired,
-    })
-  ),
-  updateTasks: PropTypes.func.isRequired,
+    }),
+  editTaskHelper: PropTypes.func.isRequired,
 };
 
-export default TodoForm;
+export default EditForm;
