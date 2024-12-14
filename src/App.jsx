@@ -5,6 +5,9 @@ import Header from "./components/Header";
 import { getTasksFromLocalStorage, saveTasksToLocalStorage } from "./helpers/handle_local_storage.js";
 import TodoList from "./components/TodoList/TodoList.jsx";
 import EditForm from "./components/EditForm.jsx";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const App = () => {
   const [mode, setMode] = useState(true);
@@ -77,15 +80,43 @@ const App = () => {
     });
     updateTasks(updatedTasks);
   }
-  
 
   function deleteTask(todoId) {
-    const updatedTasks = tasks.filter((task) => task.id !== todoId);
-    updateTasks(updatedTasks);
+    const confirmToast = toast.warn(
+      <div>
+        <p>Are you sure you want to delete this task?</p>
+        <div className="flex justify-around">
+          <button
+            onClick={() => {
+              const updatedTasks = tasks.filter((task) => task.id !== todoId);
+              toast.dismiss(confirmToast);
+              updateTasks(updatedTasks);
+              toast.success('Task deleted successfully!', { position: "top-center" });
+            }}
+            className="border-2 rounded-md p-1 border-red-500 text-red-500"
+          >
+            Yes, delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(confirmToast)}
+            className="border-2 rounded-md p-1 border-blue-500 text-blue-500"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>,
+      {
+        position: "top-center",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+      }
+    );
   }
   
   return (
     <div className="bg-background text-primary min-h-screen flex flex-col items-center">
+      <ToastContainer theme="dark"/>
       <Header mode={mode} setMode={setMode}/>
       <div className="mt-3">
         <input
