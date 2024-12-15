@@ -89,7 +89,7 @@ const TodoForm = ({ showModal, setShowModal, tasks, updateTasks }) => {
     <>
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-container p-6 rounded-lg shadow-lg w-[90vw] md:w-[50vw] max-h-[90vh] overflow-y-auto overscroll-contain relative">
+          <div className="modal bg-container p-6 rounded-lg shadow-lg w-[90vw] md:w-[50vw] max-h-[90vh] overflow-y-auto overscroll-contain relative">
             <div
               className="absolute top-4 right-4 rounded-full p-3 hover:bg-background"
               onClick={() => setShowModal(false)}

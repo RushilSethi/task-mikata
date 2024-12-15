@@ -15,6 +15,9 @@ const App = () => {
   const [tasks, setTasks] = useState([]);
   const [showEditForm, setShowEditForm] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState(null);
+  const [searchText, setSearchText] = useState("");
+  const [filteredTasks, setFilteredTasks] = useState(tasks);
+
 
   const updateTasks = (updatedTasks)=>{
     setTasks(updatedTasks);
@@ -45,6 +48,13 @@ const App = () => {
     const interval = setInterval(updateTaskStatuses, 60000);
     return () => clearInterval(interval);
   }, [tasks]);
+
+  useEffect(() => {
+    const filtered = tasks.filter((task) =>
+      task.title.toLowerCase().includes(searchText.toLowerCase()) || task.description.toLowerCase().includes(searchText.toLowerCase())
+    );
+    setFilteredTasks(filtered);
+  }, [searchText, tasks]);
 
   function markTaskComplete(todoId) {
     const updatedTasks = tasks.map((task) => {
@@ -118,13 +128,15 @@ const App = () => {
     <div className="bg-background text-primary min-h-screen flex flex-col items-center">
       <ToastContainer theme="dark"/>
       <Header mode={mode} setMode={setMode}/>
-      <div className="mt-3">
+      <div className="mt-3"> {/* Search Bar */}
         <input
           placeholder="Search Todos"
           className="mb-5 bg-container text-secondary w-[90vw] md:w-[70vw] py-1 px-3 rounded-md focus:outline-none focus:ring-1"
+          value = {searchText}
+          onChange={(e) => setSearchText(e.target.value)}
         />
       </div>
-      <TodoList todos={tasks} onComplete={markTaskComplete} onDelete={deleteTask} onEdit={editTask}/>
+      <TodoList todos={filteredTasks} onComplete={markTaskComplete} onDelete={deleteTask} onEdit={editTask}/>
       <EditForm taskToEdit={taskToEdit} showEditModal={showEditForm} setShowEditModal={setShowEditForm} editTaskHelper={editTaskHelper}/>
       <TodoForm tasks={tasks} updateTasks={updateTasks} showModal={showForm} setShowModal={setShowForm}/>
       <CreateTodoButton showModal={showForm} setShowModal={setShowForm}/>
